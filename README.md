@@ -12,10 +12,5 @@
 ├── imagenet_labels.json    1000 个分类标签
 ├── model/resnet18.onnx     ResNet18 模型（int8 量化，约 13MB）
 ├── onnx/                   onnxruntime-web 浏览器端运行时
-└── python/                 本地 Flask 版（不参与网页部署）
-    ├── app.py
-    ├── recognizer.py
-    ├── models/
-    ├── templates/
-    └── requirements.txt
+└── README.md               本文件
 ```

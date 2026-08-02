@@ -11,6 +11,7 @@ ort.env.wasm.wasmPaths = new URL(WASM_PATH, document.baseURI).href;
 var session = null;
 var labels = null;
 var modelLoadPromise = null;
+var modelReady = false;
 var previewURL = null;
 
 // ---------- DOM ----------
@@ -25,10 +26,6 @@ var resultImg = document.getElementById('resultImg');
 var resultTime = document.getElementById('resultTime');
 var resultList = document.getElementById('resultList');
 var againBtn = document.getElementById('againBtn');
-
-// ---------- 页面加载即开始准备模型 ----------
-loadLabels();
-loadModel(updateLoadProgress);
 
 // ---------- 工具函数 ----------
 function showError(msg) {
@@ -62,6 +59,7 @@ async function loadModel(onProgress) {
         received += part.value.length;
         if (onProgress) onProgress(received, total);
       }
+      statusBox.textContent = '模型下载完成，正在初始化…';
       var buffer = new Uint8Array(received);
       var offset = 0;
       for (var i = 0; i < chunks.length; i++) {
@@ -69,9 +67,12 @@ async function loadModel(onProgress) {
         offset += chunks[i].length;
       }
       session = await ort.InferenceSession.create(buffer.buffer, { executionProviders: ['wasm'] });
+      modelReady = true;
+      statusBox.textContent = '模型已就绪，可以开始识别';
       return session;
     })().catch(function (err) {
       modelLoadPromise = null;
+      modelReady = false;
       throw err;
     });
   }
@@ -86,12 +87,6 @@ function updateLoadProgress(received, total) {
   statusBox.innerHTML =
     '正在加载模型 ' + mb + ' / ' + totalMB + ' MB（首次加载约 13MB，之后有缓存）' +
     '<div class="bar-bg"><div class="bar" style="width:' + pct + '%"></div></div>';
-  if (pct >= 100) statusBox.innerHTML = '模型加载完成，可以开始识别了';
-}
-
-function markModelReady() {
-  statusBox.textContent = '模型已就绪，可以开始识别';
-  btn.disabled = false;
 }
 
 // ---------- 图片预处理 ----------
@@ -184,6 +179,7 @@ fileInput.addEventListener('change', function () {
   preview.hidden = false;
   placeholder.hidden = true;
   hideError();
+  btn.disabled = false; // 选好图就能点，模型没加载完会自动等
 });
 
 btn.addEventListener('click', async function () {
@@ -194,8 +190,8 @@ btn.addEventListener('click', async function () {
   }
   hideError();
   btn.disabled = true;
-  btn.textContent = '识别中，请稍候…';
   try {
+    btn.textContent = modelReady ? '识别中，请稍候…' : '正在加载模型，请稍候…';
     var result = await recognize(file);
     showResults(result, previewURL);
     btn.textContent = '识别完成';
@@ -209,7 +205,7 @@ btn.addEventListener('click', async function () {
 againBtn.addEventListener('click', function () {
   resultSection.style.display = 'none';
   btn.textContent = '识别';
-  btn.disabled = false;
+  btn.disabled = true;
   fileInput.value = '';
   preview.hidden = true;
   placeholder.hidden = false;
@@ -217,8 +213,8 @@ againBtn.addEventListener('click', function () {
   previewURL = null;
 });
 
-// 模型加载完成前禁用按钮，完成后启用
-loadModel(updateLoadProgress).then(markModelReady).catch(function (err) {
-  showError('模型加载失败：' + err.message);
-  statusBox.textContent = '模型加载失败，请刷新页面重试';
+// ---------- 启动：后台加载标签和模型（不阻塞选图） ----------
+loadLabels();
+loadModel(updateLoadProgress).catch(function () {
+  statusBox.textContent = '模型加载失败，选好图片后点"识别"可重试';
 });

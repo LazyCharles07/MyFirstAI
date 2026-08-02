@@ -1,3 +1,6 @@
+# ===== 只跟踪 GitHub Pages 网站需要的文件 =====
+
+# 本地运行产物
 .venv/
 __pycache__/
 uploads/
@@ -5,3 +8,7 @@ server.log
 test.jpg
 Thumbs.db
 desktop.ini
+
+# 本地 Flask 版（仅本机使用，不上传）
+python/
+启动本地版.bat

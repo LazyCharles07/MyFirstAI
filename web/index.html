@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="data:,">
+  <title>图片识别</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", Arial, sans-serif;
+      background: #eef2f7;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      background: #ffffff;
+      border-radius: 14px;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.10);
+      padding: 36px 32px;
+      width: 520px;
+      max-width: 100%;
+    }
+    h1 { font-size: 24px; font-weight: 700; color: #1f2937; text-align: center; }
+    .sub {
+      color: #6b7280; font-size: 13px; text-align: center;
+      margin: 8px 0 26px;
+    }
+    .drop {
+      display: block;
+      border: 2px dashed #b6c2d1;
+      border-radius: 12px;
+      padding: 30px 16px;
+      text-align: center;
+      cursor: pointer;
+      background: #fafbfd;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .drop:hover { border-color: #3b82f6; background: #f3f8ff; }
+    .drop .icon { font-size: 15px; color: #9aa5b1; line-height: 1.8; }
+    .drop img {
+      display: block; margin: 0 auto;
+      max-width: 100%; max-height: 240px; border-radius: 8px;
+    }
+    .drop .hint { font-size: 12px; color: #b0b8c2; margin-top: 12px; }
+    button {
+      display: block; width: 100%;
+      margin-top: 20px; padding: 13px 0;
+      font-size: 16px; font-weight: 600;
+      color: #ffffff; background: #2563eb;
+      border: none; border-radius: 10px; cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover { background: #1d4ed8; }
+    button:disabled { background: #93b4f0; cursor: not-allowed; }
+    .status {
+      margin-top: 14px;
+      font-size: 12px;
+      color: #6b7280;
+      text-align: center;
+    }
+    .status .bar-bg {
+      height: 6px; border-radius: 3px; background: #e5e7eb;
+      margin-top: 6px; overflow: hidden;
+    }
+    .status .bar {
+      height: 100%; width: 0%;
+      background: #60a5fa; border-radius: 3px;
+      transition: width 0.2s;
+    }
+    .error {
+      margin-top: 16px; padding: 10px 12px;
+      color: #b91c1c; background: #fef2f2;
+      border: 1px solid #fecaca; border-radius: 8px;
+      font-size: 13px; text-align: left;
+    }
+    .result-section { display: none; margin-top: 24px; }
+    .image-box {
+      text-align: center; background: #f8fafc;
+      border: 1px solid #e5e7eb; border-radius: 10px;
+      padding: 14px; margin-bottom: 16px;
+    }
+    .image-box img {
+      display: block; margin: 0 auto;
+      max-width: 100%; max-height: 260px; border-radius: 6px;
+    }
+    .time {
+      display: inline-block; margin-top: 10px;
+      padding: 4px 12px; background: #eef2ff;
+      color: #4f46e5; border-radius: 999px; font-size: 12px;
+    }
+    .result {
+      display: flex; align-items: center;
+      padding: 12px 14px; border-radius: 10px;
+      background: #f8fafc; margin-bottom: 10px;
+    }
+    .result.top1 { background: #eff6ff; border: 1px solid #bfdbfe; }
+    .rank {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; color: #ffffff;
+      margin-right: 14px; flex-shrink: 0;
+    }
+    .rank.r1 { background: #f59e0b; }
+    .rank.r2 { background: #94a3b8; }
+    .rank.r3 { background: #b45309; }
+    .info { flex: 1; min-width: 0; }
+    .label {
+      font-size: 15px; font-weight: 600; color: #1f2937;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .bar-bg {
+      height: 7px; border-radius: 4px; background: #e5e7eb;
+      margin-top: 6px; overflow: hidden;
+    }
+    .bar { height: 100%; border-radius: 4px; background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+    .pct {
+      min-width: 64px; text-align: right;
+      font-size: 15px; font-weight: 700; color: #2563eb;
+      margin-left: 14px;
+    }
+    .again { margin-top: 8px; background: #ffffff; color: #374151; border: 1px solid #d1d5db; }
+    .again:hover { background: #f3f4f6; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>图片识别</h1>
+    <p class="sub">ResNet18 · 识别完全在浏览器本地完成，图片不上传</p>
+
+    <label class="drop" id="drop">
+      <input type="file" name="image" id="file" accept="image/*" hidden>
+      <img id="preview" alt="预览" hidden>
+      <div id="placeholder">
+        <div class="icon">点击此处选择图片</div>
+        <div class="hint">支持 PNG / JPG / JPEG / BMP / WEBP / GIF</div>
+      </div>
+    </label>
+
+    <button id="btn" disabled>识别</button>
+
+    <div class="status" id="status">正在准备模型…</div>
+    <div class="error" id="error" hidden></div>
+
+    <div class="result-section" id="resultSection">
+      <div class="image-box">
+        <img id="resultImg" alt="识别图片">
+        <div class="time" id="resultTime"></div>
+      </div>
+      <div id="resultList"></div>
+      <button class="again" id="againBtn">再识别一张</button>
+    </div>
+  </div>
+
+  <script src="onnx/ort.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

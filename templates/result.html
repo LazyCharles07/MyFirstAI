@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>识别结果</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", Arial, sans-serif;
+      background: #eef2f7;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      background: #ffffff;
+      border-radius: 14px;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.10);
+      padding: 36px 32px;
+      width: 520px;
+      max-width: 100%;
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1f2937;
+      text-align: center;
+    }
+    .sub {
+      color: #6b7280;
+      font-size: 13px;
+      text-align: center;
+      margin: 8px 0 24px;
+    }
+    .image-box {
+      text-align: center;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 20px;
+    }
+    .image-box img {
+      display: block;
+      margin: 0 auto;
+      max-width: 100%;
+      max-height: 280px;
+      border-radius: 6px;
+    }
+    .time {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 4px 12px;
+      background: #eef2ff;
+      color: #4f46e5;
+      border-radius: 999px;
+      font-size: 12px;
+    }
+    .result {
+      display: flex;
+      align-items: center;
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: #f8fafc;
+      margin-bottom: 10px;
+    }
+    .result.top1 {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+    }
+    .rank {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-right: 14px;
+      flex-shrink: 0;
+    }
+    .rank.r1 { background: #f59e0b; }
+    .rank.r2 { background: #94a3b8; }
+    .rank.r3 { background: #b45309; }
+    .info {
+      flex: 1;
+      min-width: 0;
+    }
+    .label {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1f2937;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .bar-bg {
+      height: 7px;
+      border-radius: 4px;
+      background: #e5e7eb;
+      margin-top: 6px;
+      overflow: hidden;
+    }
+    .bar {
+      height: 100%;
+      border-radius: 4px;
+      background: linear-gradient(90deg, #3b82f6, #60a5fa);
+    }
+    .pct {
+      min-width: 64px;
+      text-align: right;
+      font-size: 15px;
+      font-weight: 700;
+      color: #2563eb;
+      margin-left: 14px;
+    }
+    .actions {
+      display: flex;
+      margin-top: 24px;
+    }
+    .actions a,
+    .actions button {
+      flex: 1;
+      display: block;
+      text-align: center;
+      padding: 12px 0;
+      font-size: 15px;
+      font-weight: 600;
+      border-radius: 10px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .actions a { margin-right: 12px; }
+    .actions button { margin-left: 12px; }
+    .home {
+      background: #ffffff;
+      color: #374151;
+      border: 1px solid #d1d5db;
+    }
+    .home:hover { background: #f3f4f6; }
+    .again {
+      background: #2563eb;
+      color: #ffffff;
+      border: none;
+    }
+    .again:hover { background: #1d4ed8; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>识别结果</h1>
+    <p class="sub">图片来源：{{ original_name }}</p>
+
+    <div class="image-box">
+      <img src="{{ image_url }}" alt="上传的图片">
+      <div class="time">识别耗时 {{ '%.2f'|format(elapsed) }} 秒</div>
+    </div>
+
+    {% for r in results %}
+    <div class="result {% if loop.first %}top1{% endif %}">
+      <div class="rank r{{ loop.index }}">{{ loop.index }}</div>
+      <div class="info">
+        <div class="label">{{ r.label }}</div>
+        <div class="bar-bg"><div class="bar" style="width: {{ r.confidence }}%"></div></div>
+      </div>
+      <div class="pct">{{ r.confidence }}%</div>
+    </div>
+    {% endfor %}
+
+    <div class="actions">
+      <a class="home" href="/">重新上传</a>
+      <button class="again" onclick="location.reload()">再识别一次</button>
+    </div>
+  </div>
+</body>
+</html>

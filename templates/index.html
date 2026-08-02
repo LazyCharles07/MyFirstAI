@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>图片识别</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", Arial, sans-serif;
+      background: #eef2f7;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      background: #ffffff;
+      border-radius: 14px;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.10);
+      padding: 36px 32px;
+      width: 460px;
+      max-width: 100%;
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1f2937;
+      text-align: center;
+    }
+    .sub {
+      color: #6b7280;
+      font-size: 13px;
+      text-align: center;
+      margin: 8px 0 26px;
+    }
+    .drop {
+      display: block;
+      border: 2px dashed #b6c2d1;
+      border-radius: 12px;
+      padding: 30px 16px;
+      text-align: center;
+      cursor: pointer;
+      background: #fafbfd;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .drop:hover {
+      border-color: #3b82f6;
+      background: #f3f8ff;
+    }
+    .drop .icon {
+      font-size: 15px;
+      color: #9aa5b1;
+      line-height: 1.8;
+    }
+    .drop img {
+      display: block;
+      margin: 0 auto;
+      max-width: 100%;
+      max-height: 240px;
+      border-radius: 8px;
+    }
+    .drop .hint {
+      font-size: 12px;
+      color: #b0b8c2;
+      margin-top: 12px;
+    }
+    button {
+      display: block;
+      width: 100%;
+      margin-top: 20px;
+      padding: 13px 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: #ffffff;
+      background: #2563eb;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover { background: #1d4ed8; }
+    button:disabled { background: #93b4f0; cursor: not-allowed; }
+    .error {
+      margin-top: 16px;
+      padding: 10px 12px;
+      color: #b91c1c;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 8px;
+      font-size: 13px;
+      text-align: left;
+    }
+    .note {
+      margin-top: 16px;
+      text-align: center;
+      font-size: 12px;
+      color: #9aa5b1;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>图片识别</h1>
+    <p class="sub">ResNet18 模型 · ImageNet 1000 类</p>
+
+    <form action="/recognize" method="post" enctype="multipart/form-data" id="form">
+      <label class="drop" id="drop">
+        <input type="file" name="image" id="file" accept="image/*" hidden required>
+        <img id="preview" alt="预览" hidden>
+        <div id="placeholder">
+          <div class="icon">点击此处选择图片</div>
+          <div class="hint">支持 PNG / JPG / JPEG / BMP / WEBP / GIF，最大 16MB</div>
+        </div>
+      </label>
+      <button type="submit" id="btn">识 别</button>
+    </form>
+
+    {% if error %}<div class="error">{{ error }}</div>{% endif %}
+    <p class="note">模型启动时加载一次，识别通常在 1 秒内完成</p>
+  </div>
+
+  <script>
+    var fileInput = document.getElementById('file');
+    var preview = document.getElementById('preview');
+    var placeholder = document.getElementById('placeholder');
+    var btn = document.getElementById('btn');
+    var form = document.getElementById('form');
+
+    fileInput.addEventListener('change', function () {
+      var file = fileInput.files[0];
+      if (!file) return;
+      preview.src = URL.createObjectURL(file);
+      preview.hidden = false;
+      placeholder.hidden = true;
+    });
+
+    // 在 submit 事件里禁用按钮是安全的：提交已经开始，不会被取消
+    form.addEventListener('submit', function () {
+      btn.disabled = true;
+      btn.textContent = '识别中，请稍候…';
+    });
+  </script>
+</body>
+</html>

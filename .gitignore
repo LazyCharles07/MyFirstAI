@@ -3,3 +3,5 @@ __pycache__/
 uploads/
 server.log
 test.jpg
+Thumbs.db
+desktop.ini

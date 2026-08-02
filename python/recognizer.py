@@ -73,7 +73,10 @@ if __name__ == '__main__':
     labels = load_labels()
     print(f"已加载 {len(labels)} 个分类标签，准备识别：\n")
 
-    img_path = BASE_DIR / 'test.jpg'
+    # test.jpg 在仓库根目录；从 python/ 运行时向上找一级
+    img_path = BASE_DIR.parent / 'test.jpg'
+    if not img_path.exists():
+        img_path = BASE_DIR / 'test.jpg'
     print(f"正在分析图片：{img_path}")
     img = Image.open(img_path).convert('RGB')
 

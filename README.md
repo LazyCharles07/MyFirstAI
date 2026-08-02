@@ -10,7 +10,7 @@
 ├── index.html              页面
 ├── app.js                  识别逻辑
 ├── imagenet_labels.json    1000 个分类标签
-├── model/resnet18.onnx     ResNet18 模型（约 45MB）
+├── model/resnet18.onnx     ResNet18 模型（int8 量化，约 13MB）
 ├── onnx/                   onnxruntime-web 浏览器端运行时
 └── python/                 本地 Flask 版（不参与网页部署）
     ├── app.py

@@ -84,7 +84,7 @@ function updateLoadProgress(received, total) {
   var mb = (received / 1048576).toFixed(1);
   var totalMB = (total / 1048576).toFixed(1);
   statusBox.innerHTML =
-    '正在加载模型 ' + mb + ' / ' + totalMB + ' MB（首次加载约 45MB，之后有缓存）' +
+    '正在加载模型 ' + mb + ' / ' + totalMB + ' MB（首次加载约 13MB，之后有缓存）' +
     '<div class="bar-bg"><div class="bar" style="width:' + pct + '%"></div></div>';
   if (pct >= 100) statusBox.innerHTML = '模型加载完成，可以开始识别了';
 }
